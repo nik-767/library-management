@@ -1,0 +1,134 @@
+{% extends 'library/base.html' %}
+{% block title %}Dashboard{% endblock %}
+{% block page_title %}Dashboard{% endblock %}
+
+{% block content %}
+<!-- Stats Cards -->
+<div class="stats-grid">
+    <div class="stat-card stat-card--blue">
+        <div class="stat-card-icon">
+            <i class="fa-solid fa-book"></i>
+        </div>
+        <div class="stat-card-body">
+            <p class="stat-label">Total Books</p>
+            <h2 class="stat-value" id="countBooks">{{ total_books }}</h2>
+            <p class="stat-sub">In collection</p>
+        </div>
+    </div>
+
+    <div class="stat-card stat-card--green">
+        <div class="stat-card-icon">
+            <i class="fa-solid fa-user-graduate"></i>
+        </div>
+        <div class="stat-card-body">
+            <p class="stat-label">Total Students</p>
+            <h2 class="stat-value" id="countStudents">{{ total_students }}</h2>
+            <p class="stat-sub">Registered</p>
+        </div>
+    </div>
+
+    <div class="stat-card stat-card--orange">
+        <div class="stat-card-icon">
+            <i class="fa-solid fa-book-open"></i>
+        </div>
+        <div class="stat-card-body">
+            <p class="stat-label">Issued Books</p>
+            <h2 class="stat-value" id="countIssued">{{ issued_books }}</h2>
+            <p class="stat-sub">Currently out</p>
+        </div>
+    </div>
+
+    <div class="stat-card stat-card--red">
+        <div class="stat-card-icon">
+            <i class="fa-solid fa-triangle-exclamation"></i>
+        </div>
+        <div class="stat-card-body">
+            <p class="stat-label">Overdue Books</p>
+            <h2 class="stat-value" id="countOverdue">{{ overdue_books }}</h2>
+            <p class="stat-sub">Past due date</p>
+        </div>
+    </div>
+</div>
+
+<!-- Quick Actions -->
+<div class="section-header">
+    <h2 class="section-title">Quick Actions</h2>
+</div>
+<div class="quick-actions">
+    <a href="{% url 'add_book' %}" class="quick-action-btn">
+        <i class="fa-solid fa-plus"></i>
+        <span>Add Book</span>
+    </a>
+    <a href="{% url 'add_student' %}" class="quick-action-btn">
+        <i class="fa-solid fa-user-plus"></i>
+        <span>Add Student</span>
+    </a>
+    <a href="{% url 'issue_book' %}" class="quick-action-btn">
+        <i class="fa-solid fa-book-open"></i>
+        <span>Issue Book</span>
+    </a>
+    <a href="{% url 'issued_books' %}" class="quick-action-btn">
+        <i class="fa-solid fa-list-check"></i>
+        <span>View Issued</span>
+    </a>
+</div>
+
+<!-- Recent Issues -->
+<div class="section-header">
+    <h2 class="section-title">Recently Issued Books</h2>
+    <a href="{% url 'issued_books' %}" class="section-link">View all <i class="fa-solid fa-arrow-right"></i></a>
+</div>
+
+<div class="card">
+    {% if recent_issues %}
+    <div class="table-wrapper">
+        <table class="table" id="recentIssuesTable">
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>Book</th>
+                    <th>Student</th>
+                    <th>Course</th>
+                    <th>Issue Date</th>
+                    <th>Due Date</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for issue in recent_issues %}
+                <tr>
+                    <td>{{ forloop.counter }}</td>
+                    <td>
+                        <div class="book-cell">
+                            <div class="book-icon-sm"><i class="fa-solid fa-book"></i></div>
+                            <div>
+                                <p class="book-name-sm">{{ issue.book.name }}</p>
+                                <p class="book-author-sm">{{ issue.book.author }}</p>
+                            </div>
+                        </div>
+                    </td>
+                    <td>{{ issue.student.name }}</td>
+                    <td><span class="badge badge--blue">{{ issue.student.course }}</span></td>
+                    <td>{{ issue.issue_date|date:"d M Y" }}</td>
+                    <td>{{ issue.due_date|date:"d M Y" }}</td>
+                    <td>
+                        {% if issue.is_overdue %}
+                        <span class="badge badge--red"><i class="fa-solid fa-circle-exclamation"></i> Overdue</span>
+                        {% else %}
+                        <span class="badge badge--green"><i class="fa-solid fa-circle-check"></i> Active</span>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+    <div class="empty-state">
+        <i class="fa-solid fa-book-open empty-icon"></i>
+        <p>No books currently issued.</p>
+        <a href="{% url 'issue_book' %}" class="btn btn-primary">Issue a Book</a>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

@@ -1,0 +1,116 @@
+{% extends 'library/base.html' %}
+{% block title %}Students{% endblock %}
+{% block page_title %}Student Management{% endblock %}
+
+{% block content %}
+<div class="page-toolbar">
+    <div class="search-box">
+        <i class="fa-solid fa-magnifying-glass search-icon"></i>
+        <input
+            type="text"
+            id="searchInput"
+            class="search-input"
+            placeholder="Search students by name, email, course..."
+            value="{{ query }}"
+            autocomplete="off"
+        >
+        {% if query %}
+        <a href="{% url 'student_list' %}" class="clear-search" title="Clear search">
+            <i class="fa-solid fa-xmark"></i>
+        </a>
+        {% endif %}
+    </div>
+    <a href="{% url 'add_student' %}" class="btn btn-primary">
+        <i class="fa-solid fa-user-plus"></i> Add Student
+    </a>
+</div>
+
+{% if query %}
+<p class="search-results-info">
+    Showing <strong>{{ students|length }}</strong> result{{ students|length|pluralize }} for "<em>{{ query }}</em>"
+</p>
+{% endif %}
+
+<div class="card">
+    {% if students %}
+    <div class="table-wrapper">
+        <table class="table" id="studentsTable">
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>Student Name</th>
+                    <th>Email</th>
+                    <th>Course</th>
+                    <th>Phone</th>
+                    <th>Enrolled On</th>
+                    <th>Books Issued</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for student in students %}
+                <tr>
+                    <td>{{ forloop.counter }}</td>
+                    <td>
+                        <div class="student-cell">
+                            <div class="student-avatar">{{ student.name|first|upper }}</div>
+                            <span>{{ student.name }}</span>
+                        </div>
+                    </td>
+                    <td>{{ student.email }}</td>
+                    <td><span class="badge badge--blue">{{ student.course }}</span></td>
+                    <td>{{ student.phone|default:"—" }}</td>
+                    <td>{{ student.enrollment_date|date:"d M Y" }}</td>
+                    <td>
+                        {% if student.issued_books_count > 0 %}
+                        <span class="badge badge--orange">{{ student.issued_books_count }} book{{ student.issued_books_count|pluralize }}</span>
+                        {% else %}
+                        <span class="text-muted">None</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        <div class="action-btns">
+                            <a href="{% url 'edit_student' student.pk %}" class="btn-icon btn-icon--edit" title="Edit">
+                                <i class="fa-solid fa-pen-to-square"></i>
+                            </a>
+                            <button
+                                class="btn-icon btn-icon--delete"
+                                title="Delete"
+                                onclick="confirmDelete('{% url 'delete_student' student.pk %}', '{{ student.name|escapejs }}')"
+                            >
+                                <i class="fa-solid fa-trash"></i>
+                            </button>
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    <div class="table-footer">
+        <p class="table-count">Total: <strong>{{ students|length }}</strong> student{{ students|length|pluralize }}</p>
+    </div>
+    {% else %}
+    <div class="empty-state">
+        <i class="fa-solid fa-user-graduate empty-icon"></i>
+        <p>No students found {% if query %}matching "{{ query }}"{% endif %}.</p>
+        <a href="{% url 'add_student' %}" class="btn btn-primary">Add First Student</a>
+    </div>
+    {% endif %}
+</div>
+
+<!-- Delete Confirmation Modal -->
+{% include 'library/delete_modal.html' %}
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.getElementById('searchInput').addEventListener('input', function() {
+    const q = this.value.toLowerCase();
+    const rows = document.querySelectorAll('#studentsTable tbody tr');
+    rows.forEach(row => {
+        row.style.display = row.textContent.toLowerCase().includes(q) ? '' : 'none';
+    });
+});
+</script>
+{% endblock %}

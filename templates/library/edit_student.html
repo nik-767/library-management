@@ -1,0 +1,54 @@
+{% extends 'library/base.html' %}
+{% block title %}Edit Student{% endblock %}
+{% block page_title %}Edit Student{% endblock %}
+
+{% block content %}
+<div class="form-page">
+    <div class="form-card">
+        <div class="form-card-header">
+            <i class="fa-solid fa-user-pen"></i>
+            <h2>Edit Student</h2>
+            <p>Update student information below</p>
+        </div>
+
+        <form method="POST" action="{% url 'edit_student' student.pk %}" class="form-body">
+            {% csrf_token %}
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="name">Full Name <span class="required">*</span></label>
+                    <input type="text" id="name" name="name" value="{{ student.name }}" required maxlength="255">
+                </div>
+                <div class="form-group">
+                    <label for="email">Email Address <span class="required">*</span></label>
+                    <input type="email" id="email" name="email" value="{{ student.email }}" required>
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="course">Course</label>
+                    <select id="course" name="course">
+                        {% for value, display in courses %}
+                        <option value="{{ value }}" {% if student.course == value %}selected{% endif %}>{{ display }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="phone">Phone Number</label>
+                    <input type="tel" id="phone" name="phone" value="{{ student.phone|default:'' }}" maxlength="15">
+                </div>
+            </div>
+
+            <div class="form-actions">
+                <a href="{% url 'student_list' %}" class="btn btn-secondary">
+                    <i class="fa-solid fa-arrow-left"></i> Cancel
+                </a>
+                <button type="submit" class="btn btn-primary">
+                    <i class="fa-solid fa-floppy-disk"></i> Save Changes
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

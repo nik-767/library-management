@@ -1,0 +1,127 @@
+{% extends 'library/base.html' %}
+{% block title %}Books{% endblock %}
+{% block page_title %}Book Management{% endblock %}
+
+{% block content %}
+<div class="page-toolbar">
+    <div class="search-box">
+        <i class="fa-solid fa-magnifying-glass search-icon"></i>
+        <input
+            type="text"
+            id="searchInput"
+            class="search-input"
+            placeholder="Search books by name, author, category..."
+            value="{{ query }}"
+            autocomplete="off"
+        >
+        {% if query %}
+        <a href="{% url 'book_list' %}" class="clear-search" title="Clear search">
+            <i class="fa-solid fa-xmark"></i>
+        </a>
+        {% endif %}
+    </div>
+    <a href="{% url 'add_book' %}" class="btn btn-primary">
+        <i class="fa-solid fa-plus"></i> Add Book
+    </a>
+</div>
+
+{% if query %}
+<p class="search-results-info">
+    Showing <strong>{{ books|length }}</strong> result{{ books|length|pluralize }} for "<em>{{ query }}</em>"
+</p>
+{% endif %}
+
+<div class="card">
+    {% if books %}
+    <div class="table-wrapper">
+        <table class="table" id="booksTable">
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>Book Name</th>
+                    <th>Author</th>
+                    <th>Category</th>
+                    <th>Qty</th>
+                    <th>Available</th>
+                    <th>Added On</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for book in books %}
+                <tr>
+                    <td>{{ forloop.counter }}</td>
+                    <td>
+                        <div class="book-cell">
+                            <div class="book-icon-sm book-icon--{{ book.category|lower|cut:' ' }}">
+                                <i class="fa-solid fa-book"></i>
+                            </div>
+                            <span class="book-name-sm">{{ book.name }}</span>
+                        </div>
+                    </td>
+                    <td>{{ book.author }}</td>
+                    <td><span class="badge badge--purple">{{ book.category }}</span></td>
+                    <td>{{ book.quantity }}</td>
+                    <td>
+                        {% if book.available > 0 %}
+                        <span class="badge badge--green">{{ book.available }} left</span>
+                        {% else %}
+                        <span class="badge badge--red">Out of stock</span>
+                        {% endif %}
+                    </td>
+                    <td>{{ book.added_date|date:"d M Y" }}</td>
+                    <td>
+                        <div class="action-btns">
+                            <a href="{% url 'edit_book' book.pk %}" class="btn-icon btn-icon--edit" title="Edit">
+                                <i class="fa-solid fa-pen-to-square"></i>
+                            </a>
+                            <button
+                                class="btn-icon btn-icon--delete"
+                                title="Delete"
+                                onclick="confirmDelete('{% url 'delete_book' book.pk %}', '{{ book.name|escapejs }}')"
+                            >
+                                <i class="fa-solid fa-trash"></i>
+                            </button>
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    <div class="table-footer">
+        <p class="table-count">Total: <strong>{{ books|length }}</strong> book{{ books|length|pluralize }}</p>
+    </div>
+    {% else %}
+    <div class="empty-state">
+        <i class="fa-solid fa-book-open empty-icon"></i>
+        <p>No books found {% if query %}matching "{{ query }}"{% endif %}.</p>
+        <a href="{% url 'add_book' %}" class="btn btn-primary">Add First Book</a>
+    </div>
+    {% endif %}
+</div>
+
+<!-- Delete Confirmation Modal -->
+{% include 'library/delete_modal.html' %}
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Live search filter
+document.getElementById('searchInput').addEventListener('input', function() {
+    const q = this.value.toLowerCase();
+    const rows = document.querySelectorAll('#booksTable tbody tr');
+    rows.forEach(row => {
+        const text = row.textContent.toLowerCase();
+        row.style.display = text.includes(q) ? '' : 'none';
+    });
+});
+
+// Enter key search redirect
+document.getElementById('searchInput').addEventListener('keydown', function(e) {
+    if (e.key === 'Enter') {
+        window.location.href = '{% url 'book_list' %}?q=' + encodeURIComponent(this.value);
+    }
+});
+</script>
+{% endblock %}

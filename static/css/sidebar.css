@@ -1,0 +1,11 @@
+/* ── Utility extras ── */
+.sidebar.collapsed { width: var(--sidebar-collapsed); }
+.sidebar.collapsed .brand-name,
+.sidebar.collapsed .brand-sub,
+.sidebar.collapsed .nav-label,
+.sidebar.collapsed .nav-item span,
+.sidebar.collapsed .user-info > div,
+.sidebar.collapsed .logout-btn { display: none; }
+.sidebar.collapsed .nav-item { justify-content: center; padding: 10px; margin: 2px 6px; }
+.sidebar.collapsed .nav-item i { width: auto; }
+.sidebar.collapsed + .main-wrapper { margin-left: var(--sidebar-collapsed); }

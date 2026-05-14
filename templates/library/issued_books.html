@@ -1,0 +1,109 @@
+{% extends 'library/base.html' %}
+{% block title %}Issued Books{% endblock %}
+{% block page_title %}Issued Books{% endblock %}
+
+{% block content %}
+<div class="page-toolbar">
+    <div class="search-box">
+        <i class="fa-solid fa-magnifying-glass search-icon"></i>
+        <input
+            type="text"
+            id="searchInput"
+            class="search-input"
+            placeholder="Search by book or student name..."
+            autocomplete="off"
+        >
+    </div>
+    <a href="{% url 'issue_book' %}" class="btn btn-primary">
+        <i class="fa-solid fa-plus"></i> Issue New Book
+    </a>
+</div>
+
+<div class="card">
+    {% if issues %}
+    <div class="table-wrapper">
+        <table class="table" id="issuedTable">
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>Book Name</th>
+                    <th>Student</th>
+                    <th>Course</th>
+                    <th>Issue Date</th>
+                    <th>Due Date</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for issue in issues %}
+                <tr class="{% if issue.is_overdue %}row-overdue{% endif %}">
+                    <td>{{ forloop.counter }}</td>
+                    <td>
+                        <div class="book-cell">
+                            <div class="book-icon-sm">
+                                <i class="fa-solid fa-book"></i>
+                            </div>
+                            <div>
+                                <p class="book-name-sm">{{ issue.book.name }}</p>
+                                <p class="book-author-sm">{{ issue.book.author }}</p>
+                            </div>
+                        </div>
+                    </td>
+                    <td>
+                        <div class="student-cell">
+                            <div class="student-avatar student-avatar--sm">{{ issue.student.name|first|upper }}</div>
+                            <span>{{ issue.student.name }}</span>
+                        </div>
+                    </td>
+                    <td><span class="badge badge--blue">{{ issue.student.course }}</span></td>
+                    <td>{{ issue.issue_date|date:"d M Y" }}</td>
+                    <td>{{ issue.due_date|date:"d M Y" }}</td>
+                    <td>
+                        {% if issue.is_overdue %}
+                        <span class="badge badge--red">
+                            <i class="fa-solid fa-circle-exclamation"></i> Overdue
+                        </span>
+                        {% else %}
+                        <span class="badge badge--green">
+                            <i class="fa-solid fa-circle-check"></i> Active
+                        </span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        <form method="POST" action="{% url 'return_book' issue.pk %}" style="display:inline;">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-sm btn-return" onclick="return confirm('Mark \'{{ issue.book.name|escapejs }}\' as returned?')">
+                                <i class="fa-solid fa-rotate-left"></i> Return
+                            </button>
+                        </form>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    <div class="table-footer">
+        <p class="table-count">Total Issued: <strong>{{ issues|length }}</strong></p>
+    </div>
+    {% else %}
+    <div class="empty-state">
+        <i class="fa-solid fa-book-open empty-icon"></i>
+        <p>No books are currently issued.</p>
+        <a href="{% url 'issue_book' %}" class="btn btn-primary">Issue a Book</a>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.getElementById('searchInput').addEventListener('input', function() {
+    const q = this.value.toLowerCase();
+    const rows = document.querySelectorAll('#issuedTable tbody tr');
+    rows.forEach(row => {
+        row.style.display = row.textContent.toLowerCase().includes(q) ? '' : 'none';
+    });
+});
+</script>
+{% endblock %}

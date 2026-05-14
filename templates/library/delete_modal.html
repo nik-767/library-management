@@ -1,0 +1,21 @@
+<!-- Delete Confirmation Modal -->
+<div class="modal-overlay" id="deleteModal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+    <div class="modal">
+        <div class="modal-icon modal-icon--danger">
+            <i class="fa-solid fa-triangle-exclamation"></i>
+        </div>
+        <h3 class="modal-title" id="modalTitle">Confirm Delete</h3>
+        <p class="modal-message" id="modalMessage">Are you sure you want to delete this item? This action cannot be undone.</p>
+        <div class="modal-actions">
+            <button class="btn btn-secondary" onclick="closeDeleteModal()">
+                <i class="fa-solid fa-xmark"></i> Cancel
+            </button>
+            <form method="POST" id="deleteForm">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-danger">
+                    <i class="fa-solid fa-trash"></i> Delete
+                </button>
+            </form>
+        </div>
+    </div>
+</div>

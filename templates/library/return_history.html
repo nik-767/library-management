@@ -1,0 +1,91 @@
+{% extends 'library/base.html' %}
+{% block title %}Return History{% endblock %}
+{% block page_title %}Return History{% endblock %}
+
+{% block content %}
+<div class="page-toolbar">
+    <div class="search-box">
+        <i class="fa-solid fa-magnifying-glass search-icon"></i>
+        <input
+            type="text"
+            id="searchInput"
+            class="search-input"
+            placeholder="Search by book or student name..."
+            autocomplete="off"
+        >
+    </div>
+</div>
+
+<div class="card">
+    {% if history %}
+    <div class="table-wrapper">
+        <table class="table" id="historyTable">
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>Book Name</th>
+                    <th>Student</th>
+                    <th>Issue Date</th>
+                    <th>Due Date</th>
+                    <th>Return Date</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in history %}
+                <tr>
+                    <td>{{ forloop.counter }}</td>
+                    <td>
+                        <div class="book-cell">
+                            <div class="book-icon-sm">
+                                <i class="fa-solid fa-book"></i>
+                            </div>
+                            <div>
+                                <p class="book-name-sm">{{ item.book.name }}</p>
+                                <p class="book-author-sm">{{ item.book.author }}</p>
+                            </div>
+                        </div>
+                    </td>
+                    <td>
+                        <div class="student-cell">
+                            <div class="student-avatar student-avatar--sm">{{ item.student.name|first|upper }}</div>
+                            <span>{{ item.student.name }}</span>
+                        </div>
+                    </td>
+                    <td>{{ item.issue_date|date:"d M Y" }}</td>
+                    <td>{{ item.due_date|date:"d M Y" }}</td>
+                    <td>{{ item.return_date|date:"d M Y"|default:"—" }}</td>
+                    <td>
+                        <span class="badge badge--green">
+                            <i class="fa-solid fa-circle-check"></i> Returned
+                        </span>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    <div class="table-footer">
+        <p class="table-count">Total Returns: <strong>{{ history|length }}</strong></p>
+    </div>
+    {% else %}
+    <div class="empty-state">
+        <i class="fa-solid fa-clock-rotate-left empty-icon"></i>
+        <p>No return history found.</p>
+        <a href="{% url 'issued_books' %}" class="btn btn-primary">View Issued Books</a>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.getElementById('searchInput').addEventListener('input', function() {
+    const q = this.value.toLowerCase();
+    const rows = document.querySelectorAll('#historyTable tbody tr');
+    rows.forEach(row => {
+        row.style.display = row.textContent.toLowerCase().includes(q) ? '' : 'none';
+    });
+});
+</script>
+{% endblock %}

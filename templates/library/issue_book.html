@@ -1,0 +1,58 @@
+{% extends 'library/base.html' %}
+{% block title %}Issue Book{% endblock %}
+{% block page_title %}Issue Book{% endblock %}
+
+{% block content %}
+<div class="form-page">
+    <div class="form-card">
+        <div class="form-card-header">
+            <i class="fa-solid fa-book-open"></i>
+            <h2>Issue a Book</h2>
+            <p>Select a book and student to complete the issue</p>
+        </div>
+
+        <form method="POST" action="{% url 'issue_book' %}" class="form-body">
+            {% csrf_token %}
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="book">Select Book <span class="required">*</span></label>
+                    <select id="book" name="book" required>
+                        <option value="">— Choose a Book —</option>
+                        {% for b in books %}
+                        <option value="{{ b.pk }}">{{ b.name }} ({{ b.available }} available)</option>
+                        {% endfor %}
+                    </select>
+                    <span class="form-hint">Only available books are shown</span>
+                </div>
+                <div class="form-group">
+                    <label for="student">Select Student <span class="required">*</span></label>
+                    <select id="student" name="student" required>
+                        <option value="">— Choose a Student —</option>
+                        {% for s in students %}
+                        <option value="{{ s.pk }}">{{ s.name }} ({{ s.course }})</option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="due_days">Due in (Days)</label>
+                    <input type="number" id="due_days" name="due_days" value="14" min="1" max="90">
+                    <span class="form-hint">Default: 14 days</span>
+                </div>
+            </div>
+
+            <div class="form-actions">
+                <a href="{% url 'issued_books' %}" class="btn btn-secondary">
+                    <i class="fa-solid fa-arrow-left"></i> Cancel
+                </a>
+                <button type="submit" class="btn btn-primary">
+                    <i class="fa-solid fa-book-open"></i> Issue Book
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
